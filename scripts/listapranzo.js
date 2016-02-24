@@ -74,7 +74,11 @@ module.exports = function (robot) {
   };
 
   robot.hear(/TB/, function (msg) {
-    msg.send('Se ordinate ap TB posso aiutarvi io!');
+    msg.send('Se ordinate al TuttoBene posso aiutarvi io!');
+  });
+
+  robot.hear(/TuttoBene/i, function (msg) {
+    msg.send('Se ordinate al TuttoBene posso aiutarvi io!');
   });
 
   robot.respond(/per me (.*)/i, function (msg) {
