@@ -1,6 +1,6 @@
 # TinaBot
 
-TinaBot è un bot Hipchat basato su [Hubot][hubot].
+TinaBot è un bot Hipchat basato su Hubot.
 
 Ci permette di gestire gli ordini del TuttoBene tenendo una lista giornaliera
 degli ordini di ognuno, stampandola quando richiesto.
