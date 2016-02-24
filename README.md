@@ -26,14 +26,20 @@ quello script o aggiungerne di nuovi.
 
 ### Provarlo in locale
 
-Per provare TinaBot è sufficiente lanciare l'eseguibile:
+Per provare TinaBot è sufficiente lanciare:
 
 ```
-% bin/hubot
+export HUBOT_HIPCHAT_JID="<utente del bot>"
+export HUBOT_HIPCHAT_PASSWORD="<password del bot>"
+
+./bin/hubot --adapter hipchat
 ```
 
 Verrà lanciata la shell interattiva di TinaBot. Si può iniziare a guardarsi
 intorno con `tinabot help`.
+
+Anche senza le variabili d'ambiente è comunque possibile interagire col bot
+direttamente dalla console.
 
 ## Deployment
 
@@ -45,9 +51,10 @@ Sono richieste alcune variabili d'ambiente su Heroku:
 
 ```
 HEROKU_URL:                      http://tinabot.herokuapp.com
+HUBOT_HEROKU_KEEPALIVE_URL:      https://tinabot.herokuapp.com/
 HUBOT_HIPCHAT_JID:               <utente del bot>
-HUBOT_HIPCHAT_PASSWORD:          <password del bot>
 HUBOT_HIPCHAT_JOIN_PUBLIC_ROOMS: false
+HUBOT_HIPCHAT_PASSWORD:          <password del bot>
 HUBOT_HIPCHAT_ROOMS:             <Lista delle stanze in cui stare in ascolto (comma-separated)>
 REDISTOGO_URL:                   <impostato da heroku>
 ```
@@ -65,3 +72,8 @@ Il remote GIT di Heroku è:
 
 Per vedere i log o riavviare il bot i comandi necessari sono `heroku logs` e
 `heroku restart`. È necessario aver installato la Heroku CLI.
+
+### Hubot Heroku Keepalive
+
+Dato che su Heroku i processi free si fermano se non c'è attività per 30 minuti
+viene usato `hubot-heroku-keepalive` per tenere attivo TinaBot.
