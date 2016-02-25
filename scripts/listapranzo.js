@@ -125,7 +125,23 @@ module.exports = function (robot) {
         reply.push(line.join(' '));
       }
     }
-
     msg.reply(reply.join('\n'));
   });
+
+  robot.respond(/menu( (.*))?/i, function (msg) {
+      var menu = (msg.match[1] || "").trim();
+      if ( menu === "" ) {
+          menu = robot.brain.get('menu') || "";
+          if ( menu === "" ) {
+              msg.reply("Non c'è nessun menu impostato!");
+          }
+          else {
+              msg.reply("Il menu è: " + menu);
+          }
+      } else {
+          robot.brain.set('menu', menu);
+          msg.reply("ok, il menu è " + menu);
+      }
+  });
+
 };
