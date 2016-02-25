@@ -48,29 +48,35 @@ module.exports = function (robot) {
   };
 
   var clearUserOrder = function (order, user) {
-    var dish = order.users[user.id];
+    var dishes = order.users[user.id];
 
-    if (dish !== undefined && order.dishes[dish] !== undefined) {
-      var idx = order.dishes[dish].indexOf(user.id);
+    for (var id in dishes) {
+        var dish = dishes[id];
+        if (dish !== undefined && order.dishes[dish] !== undefined) {
+          var idx = order.dishes[dish].indexOf(user.id);
 
-      if (idx > -1) {
-        order.dishes[dish].splice(idx, 1);
-      }
+          if (idx > -1) {
+            order.dishes[dish].splice(idx, 1);
+          }
 
-      if (order.dishes[dish].length == 0) {
-        delete order.dishes[dish];
-      }
+          if (order.dishes[dish].length == 0) {
+            delete order.dishes[dish];
+          }
+        }
     }
 
-    return dish;
+    return dishes;
   };
 
-  var addNewOrder = function (order, dish, user) {
+  var addNewOrder = function (order, dishes, user) {
     clearUserOrder(order, user);
-    var sameDish = order.dishes[dish] || [];
-    sameDish.push(user.id);
-    order.dishes[dish] = sameDish;
-    order.users[user.id] = dish;
+    for (var id in dishes) {
+        var dish = dishes[id];
+        var sameDish = order.dishes[dish] || [];
+        sameDish.push(user.id);
+        order.dishes[dish] = sameDish;
+    }
+    order.users[user.id] = dishes;
   };
 
   robot.hear(/TB/, function (msg) {
@@ -93,17 +99,13 @@ module.exports = function (robot) {
       else
         msg.reply('Ok, fatto!');
     } else {
+      var dishes = dish.split(" + ");
 
-      addNewOrder(order, dish, user);
+      addNewOrder(order, dishes, user);
       robot.brain.set('order', order);
 
       msg.reply('ok, ' + dish + ' per ' + user.name);
     }
-  });
-
-  robot.respond(/per me niente/i, function (msg) {
-    var user = msg.message.user;
-    var order = getOrder();
   });
 
   robot.respond(/ordine/i, function (msg) {
