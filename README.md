@@ -24,6 +24,9 @@ Per iniziare clonare il repository e installare i pacchetti NPM necessari con
 Lo script che fa tutto il lavoro è `scripts/listapranzo.js`. Si può modificare
 quello script o aggiungerne di nuovi.
 
+Se si aggiunge un comando nuovo, va anche inserita la relativa descrizione in
+`Commands` all'inizio del file, in modo da farlo comparire nell'help del bot.
+
 ### Provarlo in locale
 
 Per provare TinaBot è sufficiente lanciare:
