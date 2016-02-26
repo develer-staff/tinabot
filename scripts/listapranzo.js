@@ -129,7 +129,7 @@ module.exports = function (robot) {
     msg.reply(reply.join('\n'));
   });
 
-  robot.respond(/menu( ([\s\S]*))?/i, function (msg) {
+  robot.respond(/menu([\s\S]*)?/i, function (msg) {
       var menu = (msg.match[1] || "").trim();
       if ( menu === "" ) {
           menu = robot.brain.get('menu') || "";
