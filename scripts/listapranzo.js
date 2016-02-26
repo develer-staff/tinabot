@@ -52,18 +52,18 @@ module.exports = function (robot) {
     var dishes = order.users[user.id];
 
     for (var id in dishes) {
-        var dish = dishes[id];
-        if (dish !== undefined && order.dishes[dish] !== undefined) {
-          var idx = order.dishes[dish].indexOf(user.id);
+      var dish = dishes[id];
+      if (dish !== undefined && order.dishes[dish] !== undefined) {
+        var idx = order.dishes[dish].indexOf(user.id);
 
-          if (idx > -1) {
-            order.dishes[dish].splice(idx, 1);
-          }
-
-          if (order.dishes[dish].length == 0) {
-            delete order.dishes[dish];
-          }
+        if (idx > -1) {
+          order.dishes[dish].splice(idx, 1);
         }
+
+        if (order.dishes[dish].length == 0) {
+          delete order.dishes[dish];
+        }
+      }
     }
 
     return dishes;
@@ -72,11 +72,12 @@ module.exports = function (robot) {
   var addNewOrder = function (order, dishes, user) {
     clearUserOrder(order, user);
     for (var id in dishes) {
-        var dish = dishes[id];
-        var sameDish = order.dishes[dish] || [];
-        sameDish.push(user.id);
-        order.dishes[dish] = sameDish;
+      var dish = dishes[id];
+      var sameDish = order.dishes[dish] || [];
+      sameDish.push(user.id);
+      order.dishes[dish] = sameDish;
     }
+
     order.users[user.id] = dishes;
   };
 
@@ -100,7 +101,7 @@ module.exports = function (robot) {
       else
         msg.reply('Ok, fatto!');
     } else {
-      var dishes = dish.split(" + ");
+      var dishes = dish.split(' + ');
 
       addNewOrder(order, dishes, user);
       robot.brain.set('order', order);
@@ -126,23 +127,23 @@ module.exports = function (robot) {
         reply.push(line.join(' '));
       }
     }
+
     msg.reply(reply.join('\n'));
   });
 
   robot.respond(/menu( ([\s\S]*))?/i, function (msg) {
-      var menu = (msg.match[1] || "").trim();
-      if ( menu === "" ) {
-          menu = robot.brain.get('menu') || "";
-          if ( menu === "" ) {
-              msg.reply("Non c'è nessun menu impostato!");
-          }
-          else {
-              msg.reply("Il menu è: " + menu);
-          }
+    var menu = (msg.match[1] || '').trim();
+    if (menu === '') {
+      menu = robot.brain.get('menu') || '';
+      if (menu === '') {
+        msg.reply('Non c\'è nessun menu impostato!');
       } else {
-          robot.brain.set('menu', menu);
-          msg.reply("ok, il menu è " + menu);
+        msg.reply('Il menu è: ' + menu);
       }
+    } else {
+      robot.brain.set('menu', menu);
+      msg.reply('ok, il menu è ' + menu);
+    }
   });
 
 };
