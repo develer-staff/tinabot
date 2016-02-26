@@ -100,12 +100,13 @@ module.exports = function (robot) {
       else
         msg.reply('Ok, fatto!');
     } else {
-      var dishes = dish.split(" + ");
+      var dishes = dish.split("+");
+      dishes = dishes.map(function (s) { return s.trim(); });
 
       addNewOrder(order, dishes, user);
       robot.brain.set('order', order);
 
-      msg.reply('ok, ' + dish + ' per ' + user.name);
+      msg.reply('ok, ' + dishes.join(" e ") + ' per ' + user.name);
     }
   });
 
