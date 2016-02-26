@@ -2,9 +2,10 @@
 //   Script per fare la lista dei piatti da ordinare al TuttoBene
 //
 // Commands:
-//   hubot per me <ordine> - aggiunge <ordine> all'ordine dell'utente
-//   hubot per me niente - cancella il proprio ordine
-//   hubot ordine - pubblica i dishes ordinati
+//   hubot menu [<menu>] - Mostra il menù. Se viene indicato anche <menu>, ne salva uno nuovo
+//   hubot ordine - Lista dei piatti ordinati oggi
+//   hubot per me <ordine> [+ <ordine>] - Aggiunge <ordine> all'ordine dell'utente. Con "+ <ordine>" inserisce 2 ordini.
+//   hubot per me niente - Cancella il proprio ordine
 //   TB - hubot ha sempre voglia di TuttoBene!
 //
 // Notes:
