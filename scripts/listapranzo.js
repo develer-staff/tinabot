@@ -119,13 +119,18 @@ module.exports = function (robot) {
     for (var dish in order.dishes) {
       if (order.dishes.hasOwnProperty(dish)) {
         var userIds = order.dishes[dish];
-        var users = userIds.map(function (id) {
-          return robot.brain.userForId(id).name;
-        });
+        var line = [userIds.length, dish];
 
-        var line = [userIds.length, dish, '['];
-        line.push(users);
-        line.push(']');
+        if (showNames) {
+          var users = userIds.map(function (id) {
+            return robot.brain.userForId(id).name;
+          });
+
+          line.push('[');
+          line.push(users);
+          line.push(']');
+        }
+
         reply.push(line.join(' '));
       }
     }
@@ -140,7 +145,7 @@ module.exports = function (robot) {
       if (menu === '') {
         msg.reply('Non c\'è nessun menu impostato!');
       } else {
-        msg.reply('Il menu è: ' + menu);
+        msg.reply('Il menu è:\n' + menu);
       }
     } else {
       robot.brain.set('menu', menu);
