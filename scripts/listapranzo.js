@@ -120,7 +120,7 @@ module.exports = function (robot) {
       if (order.dishes.hasOwnProperty(dish)) {
         var userIds = order.dishes[dish];
         var line = [userIds.length, dish];
-
+        var showNames = true;
         if (showNames) {
           var users = userIds.map(function (id) {
             return robot.brain.userForId(id).name;
