@@ -94,10 +94,10 @@ module.exports = (robot) ->
 
   # Finds the room for most adaptors
   findRoom = (msg) ->
+    console.log(msg)
     room = msg.envelope.room
     if _.isUndefined(room)
       room = msg.envelope.user.reply_to
-    console.log("Room: ", room)
     room
 
   # Stores a standup in the brain.
