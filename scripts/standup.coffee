@@ -80,12 +80,12 @@ module.exports = (robot) ->
       #do some magic here to loop through the standups and find the one for right now
       theStandup = standups.filter(standupShouldFire)
       if theStandup[0].custom_message
-         message = "#{PREPEND_MESSAGE} #{custom_message}"
+         message = "#{PREPEND_MESSAGE} #{theStandup[0].custom_message}"
       else
          message = "#{PREPEND_MESSAGE} #{_.sample(STANDUP_MESSAGES)}"
     else
       if standups[0].custom_message
-          message = "#{PREPEND_MESSAGE} #{custom_message}"
+          message = "#{PREPEND_MESSAGE} #{standups[0].custom_message}"
       else
           message = "#{PREPEND_MESSAGE} #{_.sample(STANDUP_MESSAGES)}"
 
