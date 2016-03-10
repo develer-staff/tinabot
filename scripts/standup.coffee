@@ -93,11 +93,12 @@ module.exports = (robot) ->
     return
 
   # Finds the room for most adaptors
-  findRoom = (msg) ->
+  findRoom = (msg, room) ->
     console.log(msg)
-    room = msg.envelope.room
     if _.isUndefined(room)
-      room = msg.envelope.user.reply_to
+      room = msg.envelope.room
+      if _.isUndefined(room)
+        room = msg.envelope.user.reply_to
     room
 
   # Stores a standup in the brain.
@@ -170,20 +171,21 @@ module.exports = (robot) ->
       msg.send 'Deleted your ' + time + ' standup.'
     return
 
-  robot.respond /create standup ((?:[01]?[0-9]|2[0-4]):[0-5]?[0-9])(\sUTC([+-]([0-9]|1[0-3])))?(\s"(.*)")?$/i, (msg) ->
+  robot.respond /create standup ((?:[01]?[0-9]|2[0-4]):[0-5]?[0-9])(\sUTC([+-]([0-9]|1[0-3])))?(\s\@([^\s]*))?(\s"(.*)")?$/i, (msg) ->
     time = msg.match[1]
     utc = msg.match[3]
-    custom_message = msg.match[6]
-    room = findRoom(msg)
+    room = findRoom(msg, msg.match[6])
+    custom_message = msg.match[8]
     saveStandup room, time, utc, custom_message
-    print_message = 'Ok, from now on I\'ll remind this room to do a standup every weekday at ' + time
+    print_message = 'Ok, from now on I\'ll remind to do a standup every weekday at ' + time
 
     if utc
-        print_message += ' UTC' + utc
+      print_message += ' UTC' + utc
 
     if custom_message
-        print_message += ' with message: ' + custom_message
+      print_message += ' with message: ' + custom_message
 
+    print_message += ' in the ' + room + ' room'
     msg.send print_message
     return
 
