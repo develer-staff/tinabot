@@ -93,12 +93,10 @@ module.exports = (robot) ->
     return
 
   # Finds the room for most adaptors
-  findRoom = (msg, room) ->
-    console.log(msg)
+  findRoom = (msg) ->
+    room = msg.envelope.user.reply_to
     if _.isUndefined(room)
       room = msg.envelope.room
-      if _.isUndefined(room)
-        room = msg.envelope.user.reply_to
     room
 
   # Stores a standup in the brain.
@@ -174,7 +172,7 @@ module.exports = (robot) ->
   robot.respond /create standup ((?:[01]?[0-9]|2[0-4]):[0-5]?[0-9])(\sUTC([+-]([0-9]|1[0-3])))?(\s\@([^\s]*))?(\s"(.*)")?$/i, (msg) ->
     time = msg.match[1]
     utc = msg.match[3]
-    room = findRoom(msg, msg.match[6])
+    room = findRoom(msg)
     custom_message = msg.match[8]
     saveStandup room, time, utc, custom_message
     print_message = 'Ok, from now on I\'ll remind to do a standup every weekday at ' + time
@@ -191,7 +189,6 @@ module.exports = (robot) ->
 
   robot.respond /(?:list|show) standups$/i, (msg) ->
     standups = getStandupsForRoom(findRoom(msg))
-    console.log("LOG STANDUPS: ",standups)
     if standups.length == 0
       msg.send 'Well this is awkward. You haven\'t got any standups set :-/'
     else
@@ -220,8 +217,7 @@ module.exports = (robot) ->
     message.push 'I can remind you to do your daily standup!'
     message.push 'Use me to create a standup, and then I\'ll post in this room every weekday at the time you specify. Here\'s how:'
     message.push ''
-    message.push robot.name + ' create standup hh:mm [message] - I\'ll remind you to standup in this room at hh:mm every weekday.'
-    message.push robot.name + ' create standup hh:mm UTC+2 [message] - I\'ll remind you to standup in this room at hh:mm every weekday.'
+    message.push robot.name + ' create standup hh:mm [UTC+2] [@room_name] [message] - I\'ll remind you to standup in the "room_name" room at hh:mm every weekday.'
     message.push robot.name + ' list standups - See all standups for this room.'
     message.push robot.name + ' list standups in every room - Be nosey and see when other rooms have their standup.'
     message.push robot.name + ' delete hh:mm standup - If you have a standup at hh:mm, I\'ll delete it.'
