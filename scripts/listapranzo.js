@@ -155,8 +155,8 @@ module.exports = function (robot) {
 
   robot.respond(/users debug/i, function (msg) {
     var reply = [];
-    reply.push(robot.brain.userForId);
-    reply.push(robot.brain.data.users);
+    // reply.push(robot.brain.userForId);
+    reply.push(robot.brain.data.users[0].keys());
     msg.reply(reply.join('\n'));
   });
 
