@@ -154,6 +154,6 @@ module.exports = function (robot) {
   });
 
   robot.respond(/user debug/i, function (msg) {
-    msg.reply(sg.message.user);
+    msg.reply(msg.message.user);
   });
 };
