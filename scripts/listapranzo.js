@@ -153,4 +153,11 @@ module.exports = function (robot) {
     }
   });
 
+  robot.respond(/users debug/i, function (msg) {
+    var reply = [];
+    reply.push(robot.brain.userForId);
+    reply.push(robot.brain.data.users);
+    msg.reply(reply.join('\n'));
+  });
+
 };
