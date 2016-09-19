@@ -152,4 +152,8 @@ module.exports = function (robot) {
       msg.reply('ok, il menu è ' + menu);
     }
   });
+
+  robot.respond(/user debug/i, function (msg) {
+    msg.reply(sg.message.user);
+  });
 };
