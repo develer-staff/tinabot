@@ -153,7 +153,7 @@ module.exports = function (robot) {
     }
   });
 
-  robot.respond(/user debug/i, function (msg) {
+  robot.respond(/user debug (.*)/i, function (msg) {
     msg.reply(msg.message.user);
   });
 };
