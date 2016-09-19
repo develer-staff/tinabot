@@ -4,6 +4,8 @@
 // Commands:
 //   hubot menu [<menu>] - Mostra il menù. Se viene indicato anche <menu>, ne salva uno nuovo
 //   hubot ordine - Lista dei piatti ordinati oggi
+//   hubot email - Lista dei piatti ordinati oggi, formattata per inviare direttamente l'email
+//   hubot cancella ordine - Reinizializza l'ordine corrente
 //   hubot per me <ordine> [+ <ordine>] - Aggiunge <ordine> all'ordine dell'utente. Con "+ <ordine>" inserisce 2 ordini.
 //   hubot per me niente - Cancella il proprio ordine
 //   TB - hubot ha sempre voglia di TuttoBene!
@@ -19,7 +21,8 @@ module.exports = function (robot) {
     return {
       timestamp: new Date(),
       dishes: {},
-      users: {}
+      users: {},
+      idToName: {},
     };
   };
 
@@ -50,6 +53,7 @@ module.exports = function (robot) {
 
   var clearUserOrder = function (order, user) {
     var dishes = order.users[user.id];
+    order.idToName[user.id] = user.name;
 
     for (var id in dishes) {
       var dish = dishes[id];
@@ -112,6 +116,11 @@ module.exports = function (robot) {
     }
   });
 
+  robot.respond(/cancella ordine/i, function (msg) {
+    robot.brain.set('order', initializeEmptyOrder());
+    msg.reply('Ordine cancellato');
+  });
+
   robot.respond(/ordine/i, function (msg) {
     var reply = ["Ecco l'ordine:"];
     var order = getOrder();
@@ -120,17 +129,36 @@ module.exports = function (robot) {
       if (order.dishes.hasOwnProperty(dish)) {
         var userIds = order.dishes[dish];
         var line = [userIds.length, dish];
-        var showNames = true;
-        if (showNames) {
-          var users = userIds.map(function (id) {
-            return robot.brain.userForId(id).name;
-          });
 
-          line.push('[');
-          line.push(users);
-          line.push(']');
-        }
+        var users = userIds.map(function (id) {
+          var name = order.idToName[id];
+          if (typeof name !== 'undefined' && name !== '') {
+            return name;
+          }
+          return robot.brain.userForId(id).name;
+        });
 
+        line.push('[');
+        line.push(users);
+        line.push(']');
+
+        reply.push(line.join(' '));
+      }
+    }
+
+    msg.reply(reply.join('\n'));
+  });
+
+  robot.respond(/email/i, function (msg) {
+    var order = getOrder();
+    var order_date = new Date(order.timestamp);
+    var formatted_date = order_date.getUTCDate() + '/' + (order_date.getUTCMonth() + 1);
+    var reply = ["Ordine Develer del giorno " + formatted_date];
+
+    for (var dish in order.dishes) {
+      if (order.dishes.hasOwnProperty(dish)) {
+        var userIds = order.dishes[dish];
+        var line = [userIds.length, dish];
         reply.push(line.join(' '));
       }
     }
@@ -151,9 +179,5 @@ module.exports = function (robot) {
       robot.brain.set('menu', menu);
       msg.reply('ok, il menu è ' + menu);
     }
-  });
-
-  robot.respond(/user debug (.*)/i, function (msg) {
-    msg.reply(msg.message.user);
   });
 };
