@@ -85,6 +85,51 @@ module.exports = function (robot) {
     order.users[user.id] = dishes;
   };
 
+  var countMatches = function (str1, str2) {
+    var s1 = str1.split(' ');
+    var s2 = str2.split(' ');
+
+    s1 = s1.map(function (s) { return s.trim().toLowerCase(); });
+    s2 = s2.map(function (s) { return s.trim().toLowerCase(); });
+
+    var match = 0;
+
+    for (i = 0; i < s1.length; i++) {
+      for (j = 0; j < s2.length; j++) {
+        if (s1[i] === s2[j])
+          match++;
+      }
+    }
+
+    return match;
+  };
+
+  var findDish = function (menu, dish) {
+    var maxmatch = 0;
+    var maxmatch_unique = false;
+    var maxmatch_id = -1;
+
+    for (var i = 0; i < menu.length; i++) {
+      var matches = countMatches(menu[i], dish);
+      if (matches > maxmatch) {
+        maxmatch_id = i;
+        maxmatch_unique = true;
+        maxmatch = matches;
+      }
+      else if (matches === maxmatch) {
+        maxmatch_unique = false;
+      }
+    }
+
+    if (maxmatch_unique === true) {
+      dish = menu[maxmatch_id];
+    }
+    else if (maxmatch > 0) {
+      dish = null;
+    }
+    return dish;
+  };
+
   robot.hear(/TB/, function (msg) {
     msg.send('Se ordinate al TuttoBene posso aiutarvi io!');
   });
@@ -108,6 +153,17 @@ module.exports = function (robot) {
 
       var dishes = dish.split('+');
       dishes = dishes.map(function (s) { return s.trim(); });
+
+      // prova a fare un match fuzzy nel menu
+      for (var d in dishes) {
+        var newdish = findDish(robot.brain.get('menu').split('\n'), dishes[d])
+        if (newdish === null) {
+          msg.reply('non capisco, "' + dish +'" è ambiguo.');
+          return;
+        }
+        else
+          dishes[d] = newdish;
+      }
 
       addNewOrder(order, dishes, user);
       robot.brain.set('order', order);
