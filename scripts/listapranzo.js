@@ -85,49 +85,27 @@ module.exports = function (robot) {
     order.users[user.id] = dishes;
   };
 
-  var countMatches = function (str1, str2) {
-    var s1 = str1.split(' ');
-    var s2 = str2.split(' ');
+  var fuzzyMatch = function (dish, menuline) {
+    dish = dish.trim().toLowerCase().replace(" ", "");
+    var key = "";
+    for (var i = 0; i < dish.length; i++)
+      key = key + dish[i] + ".*"
 
-    s1 = s1.map(function (s) { return s.trim().toLowerCase(); });
-    s2 = s2.map(function (s) { return s.trim().toLowerCase(); });
+    key = new RegExp(key, "");
 
-    var match = 0;
+    menuline = menuline.trim().toLowerCase().replace(" ", "");
 
-    for (i = 0; i < s1.length; i++) {
-      for (j = 0; j < s2.length; j++) {
-        if (s1[i] === s2[j])
-          match++;
-      }
-    }
-
-    return match;
+    return key.test(menuline);
   };
 
-  var findDish = function (menu, dish) {
-    var maxmatch = 0;
-    var maxmatch_unique = false;
-    var maxmatch_id = -1;
-
+  var findDishes = function (menu, dish) {
+    var matches = [];
     for (var i = 0; i < menu.length; i++) {
-      var matches = countMatches(menu[i], dish);
-      if (matches > maxmatch) {
-        maxmatch_id = i;
-        maxmatch_unique = true;
-        maxmatch = matches;
-      }
-      else if (matches === maxmatch) {
-        maxmatch_unique = false;
-      }
+      if (fuzzyMatch(dish, menu[i]))
+        matches.push(menu[i]);
     }
 
-    if (maxmatch_unique === true) {
-      dish = menu[maxmatch_id];
-    }
-    else if (maxmatch > 0) {
-      dish = null;
-    }
-    return dish;
+    return matches;
   };
 
   robot.hear(/TB/, function (msg) {
@@ -156,13 +134,21 @@ module.exports = function (robot) {
 
       // prova a fare un match fuzzy nel menu
       for (var d in dishes) {
-        var newdish = findDish(robot.brain.get('menu').split('\n'), dishes[d])
-        if (newdish === null) {
-          msg.reply('non capisco, "' + dish +'" è ambiguo.');
+        var newdishes = findDishes(robot.brain.get('menu').split('\n'), dishes[d])
+        if (newdishes.length === 0) {
+          msg.reply('mi spiace, non riesco a trovare nulla che rassomigli a "' + dishes[d] +'" nel menu.');
+          return;
+        }
+        else if (newdishes.length > 1) {
+          msg.reply('ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":')
+          for (var j = 0; j < newdishes.length; j++) {
+            msg.reply(newdishes[j]);
+          }
+          msg.reply("prova a essere più specifico nella tua richiesta.");
           return;
         }
         else
-          dishes[d] = newdish;
+          dishes[d] = newdishes[0];
       }
 
       addNewOrder(order, dishes, user);
