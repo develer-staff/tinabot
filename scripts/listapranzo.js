@@ -98,8 +98,9 @@ module.exports = function (robot) {
   var findDishes = function (menu, dish) {
     var matches = [];
     for (var i = 0; i < menu.length; i++) {
-      if (fuzzyMatch(dish, menu[i]))
+      if (fuzzyMatch(dish, menu[i])) {
         matches.push(menu[i]);
+      }
     }
 
     return matches;
@@ -135,17 +136,16 @@ module.exports = function (robot) {
         if (newdishes.length === 0) {
           msg.reply('mi spiace, non riesco a trovare nulla che rassomigli a "' + dishes[d] +'" nel menu.');
           return;
-        }
-        else if (newdishes.length > 1) {
+        } else if (newdishes.length > 1) {
           msg.reply('ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":')
           for (var j = 0; j < newdishes.length; j++) {
             msg.reply(newdishes[j]);
           }
           msg.reply("prova a essere più specifico nella tua richiesta.");
           return;
-        }
-        else
+        } else {
           dishes[d] = newdishes[0];
+        }
       }
 
       addNewOrder(order, dishes, user);
