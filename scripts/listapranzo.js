@@ -126,6 +126,10 @@ module.exports = function (robot) {
       else
         msg.reply('Ok, fatto!');
     } else {
+      if (robot.brain.get('menu') === null) {
+        msg.reply('nessun menu impostato!');
+        return;
+      }
 
       var dishes = dish.split('+');
       dishes = dishes.map(function (s) { return s.trim(); });
