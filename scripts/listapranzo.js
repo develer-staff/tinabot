@@ -86,14 +86,11 @@ module.exports = function (robot) {
   };
 
   var fuzzyMatch = function (dish, menuline) {
-    dish = dish.trim().toLowerCase().replace(" ", "");
-    var key = "";
-    for (var i = 0; i < dish.length; i++)
-      key = key + dish[i] + ".*"
-
+    var key = dish.trim().toLowerCase().replace(" ", ".*") + ".*";
+    
     key = new RegExp(key, "");
 
-    menuline = menuline.trim().toLowerCase().replace(" ", "");
+    menuline = menuline.trim().toLowerCase();
 
     return key.test(menuline);
   };
