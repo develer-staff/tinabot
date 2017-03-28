@@ -68,7 +68,7 @@ module.exports = function (robot) {
       order.timestamp = new Date(order.timestamp);
     }
 
-    if (isNotToday(order.timestamp)) {
+    if (!isToday(order.timestamp)) {
       if (msg !== undefined) {
         msg.emote('Cancello l\'ordine del ' + order.timestamp);
       }
@@ -79,11 +79,11 @@ module.exports = function (robot) {
     return order;
   };
 
-  var isNotToday = function (dateToCheck) {
+  var isToday = function (dateToCheck) {
     var actualDate = new Date();
-    return dateToCheck.getDate() != actualDate.getDate() ||
-           dateToCheck.getMonth() != actualDate.getMonth() ||
-           dateToCheck.getFullYear() != actualDate.getFullYear();
+    return dateToCheck.getDate() == actualDate.getDate() &&
+           dateToCheck.getMonth() == actualDate.getMonth() &&
+           dateToCheck.getFullYear() == actualDate.getFullYear();
   };
 
   var clearUserOrder = function (order, user) {
@@ -188,7 +188,7 @@ module.exports = function (robot) {
     var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    return !isNotToday(robot.brain.get('develunch') || tomorrow);
+    return isToday(robot.brain.get('develunch') || tomorrow);
   };
 
   robot.respond(/per me (.*)/i, function (msg) {
