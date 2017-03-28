@@ -197,7 +197,7 @@ module.exports = function (robot) {
     var order = getOrder(msg);
 
     if (isDevelunch()) {
-      msg.reply('Oggi c\è il develunch, niente ordini!');
+      msg.reply('Oggi c\'è il develunch, niente ordini!');
       return;
     }
 
