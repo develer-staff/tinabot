@@ -176,9 +176,9 @@ module.exports = function (robot) {
       return;
     }
 
-    /* setDate() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
-    now.setDate(now.getDate() + friday_offset);
     var next_develunch = now;
+    /* setDate() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
+    next_develunch.setDate(now.getDate() + friday_offset);
 
     msg.reply('Ok, develunch impostato per ' + next_develunch.toDateString());
     robot.brain.set('develunch', next_develunch);
