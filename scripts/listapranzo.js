@@ -21,7 +21,7 @@
 module.exports = function (robot) {
   var CronJob = require('cron').CronJob;
 
-  var reminder_job = new CronJob('00 45 11 * * 1,2,5', function() {
+  var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
       if (isDevelunch()) {
         robot.messageRoom("cibo", "oggi c'è il develunch!");
       } else {
