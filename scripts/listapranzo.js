@@ -191,8 +191,7 @@ module.exports = function (robot) {
   });
 
   var isDevelunch = function() {
-    var tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    var tomorrow = moment().add(1, 'days');
 
     return isToday(robot.brain.get('develunch') || tomorrow);
   };
