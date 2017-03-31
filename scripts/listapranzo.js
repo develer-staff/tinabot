@@ -9,7 +9,7 @@
 //   hubot per me <ordine> [+ <ordine>] - Aggiunge <ordine> all'ordine dell'utente. Con "+ <ordine>" inserisce 2 ordini.
 //   hubot per me niente - Cancella il proprio ordine
 //   hubot develunch - Mostra la data del prossimo develunch
-//   hubot develunch [questa|prossima] settimana - Imposta il develunch per questa o la prossima settiman. Tinabot poi in automatico lo ri-programmerà ogni 2 venerdì.
+//   hubot develunch [questa|prossima] settimana - Imposta il develunch per questa o la prossima settimana. Tinabot poi in automatico lo ri-programmerà ogni 2 venerdì.
 //   TB - hubot ha sempre voglia di TuttoBene!
 //
 // Notes:
