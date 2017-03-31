@@ -19,8 +19,14 @@
 //   nolith, tommyblue
 
 module.exports = function (robot) {
-  var CronJob = require('cron').CronJob;
 
+  var moment = require('moment');
+  moment.locale('it');
+  var formatDate = function(date) {
+    return moment(date).format('dddd D MMMM, Y');
+  }
+
+  var CronJob = require('cron').CronJob;
   var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
       if (isDevelunch()) {
         robot.messageRoom("cibo", "oggi c'è il develunch!");
@@ -157,7 +163,7 @@ module.exports = function (robot) {
       if (develunch === null) {
         msg.reply('Develunch non impostato!');
       } else {
-        msg.reply('Il develunch sarà ' + develunch.toDateString());
+        msg.reply('Il develunch sarà ' + formatDate(develunch));
       }
       return;
     }
@@ -180,7 +186,7 @@ module.exports = function (robot) {
     /* setDate() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
     next_develunch.setDate(now.getDate() + friday_offset);
 
-    msg.reply('Ok, develunch impostato per ' + next_develunch.toDateString());
+    msg.reply('Ok, develunch impostato per ' + formatDate(next_develunch));
     robot.brain.set('develunch', next_develunch);
   });
 
