@@ -46,9 +46,7 @@ module.exports = function (robot) {
         robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
 
         /* schedula il prossimo */
-        var develunch = robot.brain.get('develunch');
-        develunch.setDate(develunch.getDate() + 14); //setDate gestisce il wrap di mese
-        robot.brain.set('develunch', develunch);
+        robot.brain.get('develunch').add(14, 'day');
       }
     }, function () {
       /* This function is executed when the job stops */
@@ -60,7 +58,7 @@ module.exports = function (robot) {
 
   var initializeEmptyOrder = function () {
     return {
-      timestamp: new Date(),
+      timestamp: moment(),
       dishes: {},
       users: {},
       idToName: {},
@@ -71,7 +69,7 @@ module.exports = function (robot) {
     var order = robot.brain.get('order') || initializeEmptyOrder();
 
     if (typeof order.timestamp === 'string') {
-      order.timestamp = new Date(order.timestamp);
+      order.timestamp = moment(order.timestamp);
     }
 
     if (!isToday(order.timestamp)) {
@@ -160,28 +158,31 @@ module.exports = function (robot) {
       if (develunch === null) {
         msg.reply('Develunch non impostato!');
       } else {
-        msg.reply('Il develunch sarà ' + formatDate(develunch));
+        if (isDevelunch()) {
+          msg.reply('Il develunch è oggi!');
+        } else {
+          msg.reply('Il develunch sarà ' + formatDate(develunch));
+        }
       }
       return;
     }
 
     var this_week = /(quest|oggi|domani|corrente|attual)/i.test(when);
     var next_week = /(prossim|successiv|seguent)/i.test(when);
-    var now = new Date();
-    var friday_offset = 5 - now.getDay();
+
+    var friday_offset;
 
     if (this_week && !next_week) {
-      friday_offset += 0;
+      friday_offset =  5 - moment().day();
     } else if (next_week && !this_week) {
-      friday_offset += 7;
+      friday_offset = 7 + 5 - moment().day();
     } else {
       msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');  
       return;
     }
 
-    var next_develunch = now;
-    /* setDate() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
-    next_develunch.setDate(now.getDate() + friday_offset);
+    /* moment().add() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
+    next_develunch = moment().add(friday_offset, 'days');
 
     msg.reply('Ok, develunch impostato per ' + formatDate(next_develunch));
     robot.brain.set('develunch', next_develunch);
@@ -278,9 +279,7 @@ module.exports = function (robot) {
 
   robot.respond(/email/i, function (msg) {
     var order = getOrder();
-    var order_date = new Date(order.timestamp);
-    var formatted_date = order_date.getUTCDate() + '/' + (order_date.getUTCMonth() + 1);
-    var reply = ["Ordine Develer del giorno " + formatted_date];
+    var reply = ["Ordine Develer del giorno " + formatDate(order.timestamp)];
 
     for (var dish in order.dishes) {
       if (order.dishes.hasOwnProperty(dish)) {
