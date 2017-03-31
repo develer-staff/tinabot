@@ -86,10 +86,7 @@ module.exports = function (robot) {
   };
 
   var isToday = function (dateToCheck) {
-    var actualDate = new Date();
-    return dateToCheck.getDate() == actualDate.getDate() &&
-           dateToCheck.getMonth() == actualDate.getMonth() &&
-           dateToCheck.getFullYear() == actualDate.getFullYear();
+    return moment().isSame(dateToCheck, 'day');
   };
 
   var clearUserOrder = function (order, user) {
