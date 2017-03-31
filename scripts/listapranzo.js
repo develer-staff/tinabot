@@ -192,14 +192,14 @@ module.exports = function (robot) {
   };
 
   robot.respond(/per me (.*)/i, function (msg) {
-    var dish = msg.match[1].trim();
-    var user = msg.message.user;
-    var order = getOrder(msg);
-
     if (isDevelunch()) {
       msg.reply('Oggi c\'è il develunch, niente ordini!');
       return;
     }
+
+    var dish = msg.match[1].trim();
+    var user = msg.message.user;
+    var order = getOrder(msg);
 
     if (dish === 'niente') {
       var oldDish = clearUserOrder(order, user);
