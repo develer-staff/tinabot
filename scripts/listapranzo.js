@@ -85,6 +85,27 @@ module.exports = function (robot) {
     order.users[user.id] = dishes;
   };
 
+  var fuzzyMatch = function (dish, menuline) {
+    var key = dish.trim().toLowerCase().replace(" ", ".*") + ".*";
+    
+    key = new RegExp(key, "");
+
+    menuline = menuline.trim().toLowerCase();
+
+    return key.test(menuline);
+  };
+
+  var findDishes = function (menu, dish) {
+    var matches = [];
+    for (var i = 0; i < menu.length; i++) {
+      if (fuzzyMatch(dish, menu[i])) {
+        matches.push(menu[i]);
+      }
+    }
+
+    return matches;
+  };
+
   robot.hear(/TB/, function (msg) {
     msg.send('Se ordinate al TuttoBene posso aiutarvi io!');
   });
@@ -105,9 +126,31 @@ module.exports = function (robot) {
       else
         msg.reply('Ok, fatto!');
     } else {
+      if (robot.brain.get('menu') === null) {
+        msg.reply('nessun menu impostato!');
+        return;
+      }
 
       var dishes = dish.split('+');
       dishes = dishes.map(function (s) { return s.trim(); });
+
+      // prova a fare un match fuzzy nel menu
+      for (var d in dishes) {
+        var newdishes = findDishes(robot.brain.get('menu').split('\n'), dishes[d])
+        if (newdishes.length === 0) {
+          msg.reply('mi spiace, non riesco a trovare nulla che rassomigli a "' + dishes[d] +'" nel menu.');
+          return;
+        } else if (newdishes.length > 1) {
+          msg.reply('ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":')
+          for (var j = 0; j < newdishes.length; j++) {
+            msg.reply(newdishes[j]);
+          }
+          msg.reply("prova a essere più specifico nella tua richiesta.");
+          return;
+        } else {
+          dishes[d] = newdishes[0];
+        }
+      }
 
       addNewOrder(order, dishes, user);
       robot.brain.set('order', order);
