@@ -8,6 +8,8 @@
 //   hubot cancella ordine - Reinizializza l'ordine corrente
 //   hubot per me <ordine> [+ <ordine>] - Aggiunge <ordine> all'ordine dell'utente. Con "+ <ordine>" inserisce 2 ordini.
 //   hubot per me niente - Cancella il proprio ordine
+//   hubot develunch - Mostra la data del prossimo develunch
+//   hubot develunch [questa|prossima] settimana - Imposta il develunch per questa o la prossima settimana. Tinabot poi in automatico lo ri-programmerà ogni 2 venerdì.
 //   TB - hubot ha sempre voglia di TuttoBene!
 //
 // Notes:
@@ -17,9 +19,46 @@
 //   nolith, tommyblue
 
 module.exports = function (robot) {
+
+  var moment = require('moment');
+  moment.locale('it');
+  var formatDate = function(date) {
+    return moment(date).format('dddd D MMMM, Y');
+  }
+
+  var CronJob = require('cron').CronJob;
+  var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
+      if (isDevelunch()) {
+        robot.messageRoom("cibo", "oggi c'è il develunch!");
+      } else {
+        robot.messageRoom("cibo", "ricordatevi di ordinare entro mezzogiorno.");
+      }
+    }, function () {
+      /* This function is executed when the job stops */
+    },
+    true, /* Start the job right now */
+    "Europe/Rome" /* Time zone of this job. */
+  );
+  reminder_job.start();
+
+  var develunch_job = new CronJob('00 00 13 * * 5', function() {
+      if (isDevelunch()) {
+        robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
+
+        /* schedula il prossimo */
+        robot.brain.get('develunch').add(14, 'day');
+      }
+    }, function () {
+      /* This function is executed when the job stops */
+    },
+    true, /* Start the job right now */
+    "Europe/Rome" /* Time zone of this job. */
+  );
+  develunch_job.start();
+
   var initializeEmptyOrder = function () {
     return {
-      timestamp: new Date(),
+      timestamp: moment(),
       dishes: {},
       users: {},
       idToName: {},
@@ -30,10 +69,10 @@ module.exports = function (robot) {
     var order = robot.brain.get('order') || initializeEmptyOrder();
 
     if (typeof order.timestamp === 'string') {
-      order.timestamp = new Date(order.timestamp);
+      order.timestamp = moment(order.timestamp);
     }
 
-    if (isNotToday(order.timestamp)) {
+    if (!isToday(order.timestamp)) {
       if (msg !== undefined) {
         msg.emote('Cancello l\'ordine del ' + order.timestamp);
       }
@@ -44,11 +83,8 @@ module.exports = function (robot) {
     return order;
   };
 
-  var isNotToday = function (dateToCheck) {
-    var actualDate = new Date();
-    return dateToCheck.getDate() != actualDate.getDate() ||
-           dateToCheck.getMonth() != actualDate.getMonth() ||
-           dateToCheck.getFullYear() != actualDate.getFullYear();
+  var isToday = function (dateToCheck) {
+    return moment().isSame(dateToCheck, 'day');
   };
 
   var clearUserOrder = function (order, user) {
@@ -114,7 +150,62 @@ module.exports = function (robot) {
     msg.send('Se ordinate al TuttoBene posso aiutarvi io!');
   });
 
+  robot.respond(/develunch([\s\S]*)?/i, function (msg) {
+    var when = (msg.match[1] || '').trim();
+
+    if (when === '') {
+      var develunch = robot.brain.get('develunch') || null;
+      if (develunch === null) {
+        msg.reply('Develunch non impostato!');
+      } else {
+        if (isDevelunch()) {
+          msg.reply('Il develunch è oggi!');
+        } else {
+          msg.reply('Il develunch sarà ' + formatDate(develunch));
+        }
+      }
+      return;
+    }
+
+    var this_week = /quest/i.test(when);
+    var next_week = /prossim/i.test(when);
+
+    var friday_offset;
+
+    if (this_week && !next_week) {
+      friday_offset = 5 - moment().day();
+    } else if (next_week && !this_week) {
+      friday_offset = 7 + 5 - moment().day();
+    } else {
+      msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');  
+      return;
+    }
+
+    if (friday_offset <= 0 && moment().isAfter(moment().day(5).hour(13).minute(00).second(00), "second")) {
+      /* Caso in cui si setta il develunch per questa settimana, ma dopo le 13 di venerdì:
+         mantieni il ciclo e programma fra 2 settimane */
+      friday_offset += 14;
+    }
+
+    /* moment().add() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
+    next_develunch = moment().add(friday_offset, 'days');
+
+    msg.reply('Ok, develunch impostato per ' + formatDate(next_develunch));
+    robot.brain.set('develunch', next_develunch);
+  });
+
+  var isDevelunch = function() {
+    var tomorrow = moment().add(1, 'days');
+
+    return isToday(robot.brain.get('develunch') || tomorrow);
+  };
+
   robot.respond(/per me (.*)/i, function (msg) {
+    if (isDevelunch()) {
+      msg.reply('Oggi c\'è il develunch, niente ordini!');
+      return;
+    }
+
     var dish = msg.match[1].trim();
     var user = msg.message.user;
     var order = getOrder(msg);
@@ -194,9 +285,7 @@ module.exports = function (robot) {
 
   robot.respond(/email/i, function (msg) {
     var order = getOrder();
-    var order_date = new Date(order.timestamp);
-    var formatted_date = order_date.getUTCDate() + '/' + (order_date.getUTCMonth() + 1);
-    var reply = ["Ordine Develer del giorno " + formatted_date];
+    var reply = ["Ordine Develer del giorno " + formatDate(order.timestamp)];
 
     for (var dish in order.dishes) {
       if (order.dishes.hasOwnProperty(dish)) {
