@@ -186,6 +186,12 @@ module.exports = function (robot) {
       return;
     }
 
+    if (friday_offset == 0 && moment().isAfter(moment().hour(13).minute(00).second(00), "second")) {
+      /* Caso in cui si setta il develunch il venerdì pomeriggio:
+         mantieni il ciclo e programma fra 2 settimane */
+      friday_offset += 14;
+    }
+
     /* moment().add() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
     next_develunch = moment().add(friday_offset, 'days');
 
