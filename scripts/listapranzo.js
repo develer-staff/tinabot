@@ -167,17 +167,22 @@ module.exports = function (robot) {
       return;
     }
 
-    var this_week = /(quest|oggi|domani|corrente|attual)/i.test(when);
-    var next_week = /(prossim|successiv|seguent)/i.test(when);
+    var this_week = /quest/i.test(when);
+    var next_week = /prossim/i.test(when);
 
     var friday_offset;
 
     if (this_week && !next_week) {
-      friday_offset =  5 - moment().day();
+      friday_offset = 5 - moment().day();
     } else if (next_week && !this_week) {
       friday_offset = 7 + 5 - moment().day();
     } else {
       msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');  
+      return;
+    }
+
+    if (friday_offset < 0) {
+      msg.reply('ormai per questa settimana è tardi! Riprova per la prossima.');
       return;
     }
 
