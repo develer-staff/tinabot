@@ -181,13 +181,8 @@ module.exports = function (robot) {
       return;
     }
 
-    if (friday_offset < 0) {
-      msg.reply('ormai per questa settimana è tardi! Riprova per la prossima.');
-      return;
-    }
-
-    if (friday_offset == 0 && moment().isAfter(moment().hour(13).minute(00).second(00), "second")) {
-      /* Caso in cui si setta il develunch il venerdì pomeriggio:
+    if (friday_offset <= 0 && moment().isAfter(moment().day(5).hour(13).minute(00).second(00), "second")) {
+      /* Caso in cui si setta il develunch per questa settimana, ma dopo le 13 di venerdì:
          mantieni il ciclo e programma fra 2 settimane */
       friday_offset += 14;
     }
