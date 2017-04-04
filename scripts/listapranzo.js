@@ -74,7 +74,7 @@ module.exports = function (robot) {
 
     if (!isToday(order.timestamp)) {
       if (msg !== undefined) {
-        msg.emote('Cancello l\'ordine del ' + order.timestamp);
+        msg.emote('Cancello l\'ordine del ' + formatDate(order.timestamp));
       }
 
       order = initializeEmptyOrder();
@@ -123,7 +123,7 @@ module.exports = function (robot) {
 
   var fuzzyMatch = function (dish, menuline) {
     var key = dish.trim().toLowerCase().replace(" ", ".*") + ".*";
-    
+
     key = new RegExp(key, "");
 
     menuline = menuline.trim().toLowerCase();
@@ -177,7 +177,7 @@ module.exports = function (robot) {
     } else if (next_week && !this_week) {
       friday_offset = 7 + 5 - moment().day();
     } else {
-      msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');  
+      msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');
       return;
     }
 
