@@ -232,11 +232,10 @@ module.exports = function (robot) {
           msg.reply('mi spiace, non riesco a trovare nulla che rassomigli a "' + dishes[d] +'" nel menu.');
           return;
         } else if (newdishes.length > 1) {
-          msg.reply('ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":')
-          for (var j = 0; j < newdishes.length; j++) {
-            msg.reply(newdishes[j]);
-          }
-          msg.reply("prova a essere più specifico nella tua richiesta.");
+          var reply = 'ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":\n';
+          reply += newdishes.join('\n');
+          reply += "\nprova a essere più specifico nella tua richiesta."
+          msg.reply(reply);
           return;
         } else {
           dishes[d] = newdishes[0];
