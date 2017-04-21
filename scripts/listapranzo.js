@@ -46,7 +46,9 @@ module.exports = function (robot) {
         robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
 
         /* schedula il prossimo */
-        robot.brain.get('develunch').add(14, 'day');
+        next_develunch = robot.brain.get('develunch');
+        next_develunch.add(14, 'day');
+        robot.brain.set('develunch', next_develunch);
       }
     }, function () {
       /* This function is executed when the job stops */
