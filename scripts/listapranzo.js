@@ -136,6 +136,12 @@ module.exports = function (robot) {
   var findDishes = function (menu, dish) {
     var matches = [];
     for (var i = 0; i < menu.length; i++) {
+
+      /* Se match esatto ritorna il piatto trovato subito */
+      if (dish.trim().toLowerCase() == menu[i].trim().toLowerCase()) {
+        return [menu[i]];
+      }
+
       if (fuzzyMatch(dish, menu[i])) {
         matches.push(menu[i]);
       }
