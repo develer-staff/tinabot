@@ -192,16 +192,16 @@ module.exports = function (robot) {
   };
 
   // Whether this is a develunch week
-  var isDevelunchWeek = function(mm) {
+  var isDevelunchWeek = function() {
     var dv = robot.brain.get('develunch')
-    if (mm.week() == 1 && dv[1] !== mm.year()) {
+    if (moment().week() == 1 && dv[1] !== moment().year()) {
         // If we had odd weeks, we flip the bit
         if (moment(dv[1], "YYYY").weeksInYear() % 2)
             dv[0] = dv[0] ? 0 : 1;
-        dv[1] = mm.year();
+        dv[1] = moment().year();
         robot.brain.set("develunch", dv);
     }
-    return dv[0] === mm.week() % 2;
+    return dv[0] === moment().week() % 2;
   };
   // Whether today is the develunch day
   var isDevelunchDay = function() {
