@@ -151,8 +151,8 @@ module.exports = function (robot) {
     var when = (msg.match[1] || '').trim();
 
     if (when === '') {
-      var develunchUnset = robot.brain.get('develunch') === null;
-      if (develunchUnset === null) {
+      var develunch = robot.brain.get('develunch') || null;
+      if (develunch === null) {
         msg.reply('Develunch non impostato!');
       } else {
         if (isDevelunchDay()) {
@@ -168,9 +168,9 @@ module.exports = function (robot) {
     var next_week = /prossim/i.test(when);
 
     if (this_week && !next_week) {
-      robot.brain.set('develunch', moment().week() % 2);
+      robot.brain.set('develunch', [moment().week() % 2, moment().year()]);
     } else if (next_week && !this_week) {
-      robot.brain.set('develunch', (moment().week() + 1) % 2);
+      robot.brain.set('develunch', [(moment().week() + 1) % 2, moment().year()]);
     } else {
       msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');
       return;
@@ -184,16 +184,24 @@ module.exports = function (robot) {
 
     var dDay = moment().startOf('week').add(dOffset - 1, 'days');
     if (!isDevelunchWeek())
-        dDay.add(7, 'days')
+        dDay.add(7, 'days');
     else if (moment().day() > dOffset)
-        dDay.add(14, 'days')
+        dDay.add(14, 'days');
 
-    return dDay
+    return dDay;
   };
 
   // Whether this is a develunch week
-  var isDevelunchWeek = function() {
-    return robot.brain.get('develunch') === moment().week() % 2;
+  var isDevelunchWeek = function(mm) {
+    var dv = robot.brain.get('develunch')
+    if (mm.week() == 1 && dv[1] !== mm.year()) {
+        // If we had odd weeks, we flip the bit
+        if (moment(dv[1], "YYYY").weeksInYear() % 2)
+            dv[0] = dv[0] ? 0 : 1;
+        dv[1] = mm.year();
+        robot.brain.set("develunch", dv);
+    }
+    return dv[0] === mm.week() % 2;
   };
   // Whether today is the develunch day
   var isDevelunchDay = function() {
