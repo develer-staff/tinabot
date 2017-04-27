@@ -28,7 +28,7 @@ module.exports = function (robot) {
 
   var CronJob = require('cron').CronJob;
   var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
-      if (isDevelunch()) {
+      if (isDevelunchDay()) {
         robot.messageRoom("cibo", "oggi c'è il develunch!");
       } else {
         robot.messageRoom("cibo", "ricordatevi di ordinare entro mezzogiorno.");
@@ -42,11 +42,8 @@ module.exports = function (robot) {
   reminder_job.start();
 
   var develunch_job = new CronJob('00 00 13 * * 5', function() {
-      if (isDevelunch()) {
+      if (isDevelunchDay()) {
         robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
-
-        /* schedula il prossimo */
-        robot.brain.get('develunch').add(14, 'day');
       }
     }, function () {
       /* This function is executed when the job stops */
@@ -158,10 +155,10 @@ module.exports = function (robot) {
       if (develunch === null) {
         msg.reply('Develunch non impostato!');
       } else {
-        if (isDevelunch()) {
+        if (isDevelunchDay()) {
           msg.reply('Il develunch è oggi!');
         } else {
-          msg.reply('Il develunch sarà ' + formatDate(develunch));
+          msg.reply('Il develunch sarà ' + formatDate(nextDevelunch()));
         }
       }
       return;
@@ -170,38 +167,50 @@ module.exports = function (robot) {
     var this_week = /quest/i.test(when);
     var next_week = /prossim/i.test(when);
 
-    var friday_offset;
-
     if (this_week && !next_week) {
-      friday_offset = 5 - moment().day();
+      robot.brain.set('develunch', [moment().week() % 2, moment().year()]);
     } else if (next_week && !this_week) {
-      friday_offset = 7 + 5 - moment().day();
+      robot.brain.set('develunch', [(moment().week() + 1) % 2, moment().year()]);
     } else {
       msg.reply('non riesco a capire quando sia il develunch... prova a dirlo in un altro modo!');
       return;
     }
-
-    if (friday_offset <= 0 && moment().isAfter(moment().day(5).hour(13).minute(00).second(00), "second")) {
-      /* Caso in cui si setta il develunch per questa settimana, ma dopo le 13 di venerdì:
-         mantieni il ciclo e programma fra 2 settimane */
-      friday_offset += 14;
-    }
-
-    /* moment().add() tiene conto anche del cambio mese/anno, anche se friday_offset è >31 o <0 */
-    next_develunch = moment().add(friday_offset, 'days');
-
-    msg.reply('Ok, develunch impostato per ' + formatDate(next_develunch));
-    robot.brain.set('develunch', next_develunch);
+    msg.reply('Ok, develunch impostato per ' + formatDate(nextDevelunch()));
   });
 
-  var isDevelunch = function() {
-    var tomorrow = moment().add(1, 'days');
+  // Computes the date of the next develunch
+  var nextDevelunch = function() {
+    const dOffset = 5; // Friday
 
-    return isToday(robot.brain.get('develunch') || tomorrow);
+    var dDay = moment().startOf('week').add(dOffset - 1, 'days');
+    if (!isDevelunchWeek())
+        dDay.add(7, 'days');
+    else if (moment().day() > dOffset)
+        dDay.add(14, 'days');
+
+    return dDay;
+  };
+
+  // Whether this is a develunch week
+  var isDevelunchWeek = function() {
+    var dv = robot.brain.get('develunch')
+    if (moment().week() == 1 && dv[1] !== moment().year()) {
+        // If we had odd weeks, we flip the bit
+        if (moment(dv[1], "YYYY").weeksInYear() % 2)
+            dv[0] = dv[0] ? 0 : 1;
+        dv[1] = moment().year();
+        robot.brain.set("develunch", dv);
+    }
+    return dv[0] === moment().week() % 2;
+  };
+  // Whether today is the develunch day
+  var isDevelunchDay = function() {
+    const dOffset = 5; // Friday
+    return isDevelunchWeek() && moment().day() == dOffset;
   };
 
   robot.respond(/per me (.*)/i, function (msg) {
-    if (isDevelunch()) {
+    if (isDevelunchDay()) {
       msg.reply('Oggi c\'è il develunch, niente ordini!');
       return;
     }
