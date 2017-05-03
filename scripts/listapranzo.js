@@ -19,6 +19,8 @@
 //   nolith, tommyblue
 
 module.exports = function (robot) {
+  // channel id della stanza del cibo
+  var cibo_ch = 'C2CRER48J'
 
   var moment = require('moment');
   moment.locale('it');
@@ -29,9 +31,9 @@ module.exports = function (robot) {
   var CronJob = require('cron').CronJob;
   var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
       if (isDevelunch()) {
-        robot.messageRoom("cibo", "oggi c'è il develunch!");
+        robot.messageRoom(cibo_ch, "oggi c'è il develunch!");
       } else {
-        robot.messageRoom("cibo", "ricordatevi di ordinare entro mezzogiorno.");
+        robot.messageRoom(cibo_ch, "ricordatevi di ordinare entro mezzogiorno.");
       }
     }, function () {
       /* This function is executed when the job stops */
@@ -43,10 +45,12 @@ module.exports = function (robot) {
 
   var develunch_job = new CronJob('00 00 13 * * 5', function() {
       if (isDevelunch()) {
-        robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
+        robot.messageRoom(cibo_ch, "@here: *Develunch!!!111!*");
 
         /* schedula il prossimo */
-        robot.brain.get('develunch').add(14, 'day');
+        next_develunch = robot.brain.get('develunch');
+        next_develunch.add(14, 'day');
+        robot.brain.set('develunch', next_develunch);
       }
     }, function () {
       /* This function is executed when the job stops */
@@ -134,6 +138,12 @@ module.exports = function (robot) {
   var findDishes = function (menu, dish) {
     var matches = [];
     for (var i = 0; i < menu.length; i++) {
+
+      /* Se match esatto ritorna il piatto trovato subito */
+      if (dish.trim().toLowerCase() == menu[i].trim().toLowerCase()) {
+        return [menu[i]];
+      }
+
       if (fuzzyMatch(dish, menu[i])) {
         matches.push(menu[i]);
       }
@@ -232,11 +242,10 @@ module.exports = function (robot) {
           msg.reply('mi spiace, non riesco a trovare nulla che rassomigli a "' + dishes[d] +'" nel menu.');
           return;
         } else if (newdishes.length > 1) {
-          msg.reply('ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":')
-          for (var j = 0; j < newdishes.length; j++) {
-            msg.reply(newdishes[j]);
-          }
-          msg.reply("prova a essere più specifico nella tua richiesta.");
+          var reply = 'ho trovato diversi piatti che rassomigliano a "' + dishes[d] + '":\n';
+          reply += newdishes.join('\n');
+          reply += "\nprova a essere più specifico nella tua richiesta."
+          msg.reply(reply);
           return;
         } else {
           dishes[d] = newdishes[0];
