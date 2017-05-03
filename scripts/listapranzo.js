@@ -19,6 +19,8 @@
 //   nolith, tommyblue
 
 module.exports = function (robot) {
+  // channel id della stanza del cibo
+  var cibo_ch = 'C2CRER48J'
 
   var moment = require('moment');
   moment.locale('it');
@@ -29,9 +31,9 @@ module.exports = function (robot) {
   var CronJob = require('cron').CronJob;
   var reminder_job = new CronJob('00 45 11 * * 3,4,5', function() {
       if (isDevelunch()) {
-        robot.messageRoom("cibo", "oggi c'è il develunch!");
+        robot.messageRoom(cibo_ch, "oggi c'è il develunch!");
       } else {
-        robot.messageRoom("cibo", "ricordatevi di ordinare entro mezzogiorno.");
+        robot.messageRoom(cibo_ch, "ricordatevi di ordinare entro mezzogiorno.");
       }
     }, function () {
       /* This function is executed when the job stops */
@@ -43,7 +45,7 @@ module.exports = function (robot) {
 
   var develunch_job = new CronJob('00 00 13 * * 5', function() {
       if (isDevelunch()) {
-        robot.messageRoom("cibo", "@here: *Develunch!!!111!*");
+        robot.messageRoom(cibo_ch, "@here: *Develunch!!!111!*");
 
         /* schedula il prossimo */
         next_develunch = robot.brain.get('develunch');
