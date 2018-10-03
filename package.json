@@ -1,6 +1,6 @@
 {
   "name": "tinabot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "author": "Tommaso Visconti <tommyblue@develer.com>",
   "description": "Gestione dell'ordine giornaliero al TuttoBene",
@@ -25,6 +25,6 @@
     "underscore": "~1.9.1"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "^10"
   }
 }
