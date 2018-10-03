@@ -294,7 +294,8 @@ module.exports = function (robot) {
 
   robot.respond(/email/i, function (msg) {
     var order = getOrder();
-    var reply = ["Ordine Develer del giorno " + formatDate(order.timestamp)];
+    var subject = "Ordine Develer del giorno " + formatDate(order.timestamp);
+    var reply = [];
 
     for (var dish in order.dishes) {
       if (order.dishes.hasOwnProperty(dish)) {
@@ -304,7 +305,14 @@ module.exports = function (robot) {
       }
     }
 
-    msg.reply(reply.join('\n'));
+    var body = reply.join('\n');
+
+    msg.reply(subject + "\n" + body + "\n\n"
+      + "<mailto:info@tuttobene-bar.it,sara@tuttobene-bar.it"
+      + "?subject=" + encodeURIComponent(subject)
+      + "&body=" + encodeURIComponent(body)
+      + "|Link `mailto` clickabile>"
+    );
   });
 
   robot.respond(/menu([\s\S]*)?/i, function (msg) {
