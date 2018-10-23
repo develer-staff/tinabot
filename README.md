@@ -9,7 +9,8 @@ I comandi che possono essere inviati (citandolo) al bot sono:
 
 * `@tinabot per me <ordine>` - aggiunge <ordine> all'ordine dell'utente
 * `@tinabot per me niente` - cancella il proprio ordine
-* `@tinabot ordine` - pubblica i dishes ordinati
+* `@tinabot ordine` - pubblica i piatti ordinati
+* `@tinabot email` - auto-genera la mail con l'ordine pronta per essere inviata
 
 Inoltre, nelle stanze in cui è attivo, tinabot è in ascolto delle parole `TB`
 (case-sensitive) o `TuttoBene` (case-insensitive)
@@ -32,10 +33,7 @@ Se si aggiunge un comando nuovo, va anche inserita la relativa descrizione in
 Per provare TinaBot è sufficiente lanciare:
 
 ```
-export HUBOT_HIPCHAT_JID="<utente del bot>"
-export HUBOT_HIPCHAT_PASSWORD="<password del bot>"
-
-./bin/hubot --adapter hipchat
+./bin/hubot --adapter slack
 ```
 
 Verrà lanciata la shell interattiva di TinaBot. Si può iniziare a guardarsi
